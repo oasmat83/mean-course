@@ -1,47 +1,38 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+const express = require("express");
+const path = require("path");
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 const app = express();
+const postRoutes = require("./routes/posts");
+
+mongoose
+  .connect(
+    "mongodb+srv://oscar418:1gdBYdiEM3npr1aD@cluster0.r9jxi.mongodb.net/node-angular?retryWrites=true&w=majority"
+  )
+  .then(() => {
+    console.log("Connected to database");
+  })
+  .catch(() => {
+    console.log("Connection failed");
+  });
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use("/images", express.static(path.join("backend/images")));
 
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader(
-        "Access-Control-Allow-Headers", 
-        "Origin, X-Requested-With, Content-Type, Accept");
-    res.setHeader(
-        "Access-Control-Allow-Methods", 
-        "GET, POST, PATCH, DELETE, OPTIONS"
-    );
-    next();
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PATCH, PUT, DELETE, OPTIONS"
+  );
+  next();
 });
 
-app.post("/api/posts", (req, res, next) => {
-    const post = req.body;
-    console.log(post);
-    res.status(201).json({
-        message: 'Post added successfully'
-    });
-});
-
-app.get('/api/posts/',(req, res, next) => {
-    const posts = [
-        {
-            id: 'fadjke123',  
-            title: "First server-side post", 
-            content: "This is coming from the server"
-        },
-        {
-            id: 'fadjke456',  
-            title: "Second server-side post", 
-            content: "This is coming from the server!"
-        }
-    ];
-    res.status(200).json({
-        message: 'Posts feteched successfully!',
-        posts
-    })
-});
+app.use("/api/posts", postRoutes);
 
 module.exports = app;
