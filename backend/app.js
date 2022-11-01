@@ -4,16 +4,15 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const app = express();
 const postRoutes = require("./routes/posts");
+const { dbPath } = require('./config/config');
 
 mongoose
-  .connect(
-    "mongodb+srv://oscar418:1gdBYdiEM3npr1aD@cluster0.r9jxi.mongodb.net/node-angular?retryWrites=true&w=majority"
-  )
+  .connect(dbPath + "?retryWrites=true&w=majority")
   .then(() => {
     console.log("Connected to database");
   })
-  .catch(() => {
-    console.log("Connection failed");
+  .catch((err) => {
+    console.log("Connection failed", err);
   });
 
 app.use(bodyParser.json());
