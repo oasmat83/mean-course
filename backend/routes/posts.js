@@ -31,7 +31,8 @@ router.post(
   multer({ storage: storage }).single("image"),
   (req, res, next) => {
     // const post = req.body;
-    const url = req.protocol + "://" + req.get("host");
+    // const url = req.protocol + "://" + req.get("host");
+    const url = req.protocol + "://24.190.226.10";
     const post = new Post({
       title: req.body.title,
       content: req.body.content,
@@ -55,7 +56,8 @@ router.put(
   (req, res, next) => {
     let imagePath = req.body.imagePath;
     if (req.file) {
-      const url = req.protocol + "://" + req.get("host");
+      // const url = req.protocol + "://" + req.get("host");
+      const url = req.protocol + "://24.190.226.10";
       imagePath = url + "/images/" + req.file.filename;
     }
     const post = new Post({

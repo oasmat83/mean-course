@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const app = express();
 const postRoutes = require("./routes/posts");
-const { dbPath } = require('./config/config');
+const { dbPath } = require("./config/config");
 
 mongoose
   .connect(dbPath + "?retryWrites=true&w=majority")
