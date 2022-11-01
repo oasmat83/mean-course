@@ -9,30 +9,34 @@ import { Router } from '@angular/router';
 @Injectable({providedIn: 'root'})
 export class PostsService {
   private posts: Post[] = [];
-  private postsUpdated = new Subject<Post[]>();
+  private postsUpdated = new Subject<{posts: Post[], postCount: number}>();
 
   constructor(private http: HttpClient, private router: Router) {
 
   }
 
-  getPosts() {
+  getPosts(postsPerPage: number, currentPage: number) {
+    const queryParams = `?pagesize=${postsPerPage}&page=${currentPage}`;
     this.http.get<{
       message: string,
-      posts: any
-    }>('http://24.190.226.10/api/posts')
+      posts: any,
+      maxPosts: number
+    }>('http://24.190.226.10/api/posts' + queryParams)
     .pipe(map((postData) => {
-      return postData.posts.map((post:any) => {
+      return { posts: postData.posts.map((post:any) => {
         return {
           title: post.title,
           content: post.content,
           id: post._id,
           imagePath: post.imagePath
         }
-      });
+      }),
+      maxPosts: postData.maxPosts
+    }
     }))
-    .subscribe((transformed) => {
-      this.posts = transformed;
-      this.postsUpdated.next([...this.posts]);
+    .subscribe((transformedPostData) => {
+      this.posts = transformedPostData.posts;
+      this.postsUpdated.next({posts: [...this.posts], postCount: transformedPostData.maxPosts});
     });
     // return [...this.posts];
   }
@@ -52,16 +56,6 @@ export class PostsService {
       post: Post
     }>('http://24.190.226.10/api/posts', postData)
       .subscribe((responseData) => {
-        // const id = responseData.postId;
-        const post: Post = {
-          title,
-          content,
-          id: responseData.post.id,
-          imagePath: responseData.post.imagePath
-        }
-        // post.id = id
-        this.posts.push(post);
-        this.postsUpdated.next([...this.posts]);
         this.router.navigate(["/"]);
       });
   }
@@ -71,12 +65,7 @@ export class PostsService {
   }
 
   deletePost(postId: string) {
-    this.http.delete("http://24.190.226.10/api/posts/" + postId)
-    .subscribe(() => {
-      const updatePosts = this.posts.filter(post => post.id !== postId);
-      this.posts = updatePosts;
-      this.postsUpdated.next([...this.posts])
-    })
+    return this.http.delete("http://24.190.226.10/api/posts/" + postId);
   }
 
   updatePost(id: string, title:string, content: string, image: File | string) {
@@ -101,17 +90,6 @@ export class PostsService {
       postId: string
     }>('http://24.190.226.10/api/posts/' + id, postData)
     .subscribe((response) => {
-      const post: Post = {
-        id: id,
-        title: title,
-        content: content,
-        imagePath: ""
-      }
-      const updatedPosts = [...this.posts];
-      const oldPostIndex = updatedPosts.findIndex(p => p.id === id);
-      updatedPosts[oldPostIndex] = post;
-      this.posts = updatedPosts;
-      this.postsUpdated.next([...this.posts]);
       this.router.navigate(["/"]);
     });
   }
