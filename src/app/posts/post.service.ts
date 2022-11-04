@@ -60,7 +60,7 @@ export class PostsService {
   }
 
   getPost(id: string) {
-    return this.http.get<{_id: string, title: string, content: string, imagePath: string}>("http://24.190.226.10/api/posts/" + id);
+    return this.http.get<{_id: string, title: string, content: string, imagePath: string, creator: string}>("http://24.190.226.10/api/posts/" + id);
   }
 
   deletePost(postId: string) {
@@ -80,7 +80,8 @@ export class PostsService {
         id: id,
         title: title,
         content: content,
-        imagePath: image
+        imagePath: image,
+        creator: null
       }
     }
 
