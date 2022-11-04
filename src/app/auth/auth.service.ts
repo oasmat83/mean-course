@@ -37,7 +37,9 @@ export class AuthService {
     const authData: AuthData = { email, password };
     this.http.post(Globals.API_URL + '/user/signup', authData)
     .subscribe(response => {
-      console.log(response);
+      this.router.navigate(["/"]);
+    }, error => {
+      this.authStatusListener.next(false);
     })
   }
 
@@ -57,6 +59,8 @@ export class AuthService {
         this.saveAuthData(this.token, expiration, this.userId);
         this.router.navigate(["/"]);
       }
+    }, error => {
+      this.authStatusListener.next(false);
     })
   }
 

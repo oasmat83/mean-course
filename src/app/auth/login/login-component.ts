@@ -1,6 +1,6 @@
-import { ThisReceiver } from "@angular/compiler";
-import { Component } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { NgForm } from "@angular/forms";
+import { Subscription } from "rxjs";
 import{ AuthService } from "../auth.service";
 
 @Component({
@@ -8,8 +8,9 @@ import{ AuthService } from "../auth.service";
   styleUrls: ['./login-component.scss']
 })
 
-export class LoginComponent {
+export class LoginComponent implements OnInit, OnDestroy {
   isLoading = false;
+  private authStatusSub: Subscription | any;
   constructor(public authService: AuthService) {}
 
   onLogin(form: NgForm) {
@@ -17,4 +18,17 @@ export class LoginComponent {
     this.isLoading = true;
     this.authService.login(form.value.email, form.value.password)
   }
+
+  ngOnInit(): void {
+    this.authStatusSub = this.authService.getAuthStatusListener().subscribe(
+      authStatus => {
+        this.isLoading = false;
+      }
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.authStatusSub.unsubscribe();
+  }
+
 }
