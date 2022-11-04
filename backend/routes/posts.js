@@ -123,8 +123,7 @@ router.delete("/:id", checkAuth, (req, res, next) => {
     _id: req.params.id,
     creator: req.userData.userId
   }).then((result) => {
-    console.log(result);
-    if (result.modifiedCount > 0){
+    if (result.deletedCount > 0){
       res.status(200).json({
         message: "Post deleted!",
       });
