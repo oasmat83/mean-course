@@ -1,6 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, ParamMap } from "@angular/router";
+import { Subscription } from "rxjs";
+import { AuthService } from "src/app/auth/auth.service";
 import { Post } from "../post.model";
 import { PostsService } from '../post.service';
 import { mimeType } from './mime-type.validator';
@@ -20,6 +22,8 @@ export class PostCreateComponent implements OnInit {
   post: any;
   form: FormGroup | any;
   imagePreview: any;
+  private authStatusSub: Subscription | any;
+  private authService: AuthService;
 
   constructor(public postsService: PostsService, public route: ActivatedRoute) {}
 
@@ -50,6 +54,11 @@ export class PostCreateComponent implements OnInit {
   }
 
   ngOnInit() {
+      this.authStatusSub = this.authService.getAuthStatusListener().subscribe(
+        authStatus => {
+          this.isLoading = false;
+        }
+      );
       this.form = new FormGroup({
         title: new FormControl(null, {
           validators: [ Validators.required, Validators.minLength(3) ]
