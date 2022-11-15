@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Globals } from '../globals';
+// import { Globals } from '../globals';
 import { AuthData } from './auth-data-model';
 import { Subject } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
+const BACKEND_URL = environment.apiUrl + '/user/'
 //injecting Service to Root (app.module.ts)
 @Injectable({providedIn: 'root'})
 
@@ -35,7 +37,7 @@ export class AuthService {
 
   createUser(email: string, password: string) {
     const authData: AuthData = { email, password };
-    this.http.post(Globals.API_URL + '/user/signup', authData)
+    this.http.post(BACKEND_URL + '/signup', authData)
     .subscribe(response => {
       this.router.navigate(["/"]);
     }, error => {
@@ -45,7 +47,7 @@ export class AuthService {
 
   login(email: string, password: string) {
     const authData: AuthData = { email, password };
-    this.http.post<{token: string, expiresIn: number, userId: string}>(Globals.API_URL + '/user/login', authData)
+    this.http.post<{token: string, expiresIn: number, userId: string, pagination: { perPage: number}}>(BACKEND_URL + '/login', authData)
     .subscribe(response => {
       this.token = response.token;
       if (response.token) {
@@ -54,9 +56,10 @@ export class AuthService {
         this.isAuthenticated = true;
         this.userId = response.userId;
         this.authStatusListener.next(true);
+        const perPage = response.pagination.perPage;
         const now = new Date();
         const expiration = new Date(now.getTime() + expiresInDuration * 1000);
-        this.saveAuthData(this.token, expiration, this.userId);
+        this.saveAuthData(this.token, expiration, this.userId, perPage);
         this.router.navigate(["/"]);
       }
     }, error => {
@@ -80,6 +83,18 @@ export class AuthService {
     }
   }
 
+  updatePage(page: number) {
+    const data = {
+      perPage: page
+    };
+    this.http.put<any>(BACKEND_URL + 'update/' + this.getUserId(), data)
+    .subscribe(response => {
+      console.log(response);
+    }, error => {
+      this.authStatusListener.next(false);
+    });
+  }
+
   logout() {
     this.token = null;
     this.isAuthenticated = false
@@ -96,16 +111,18 @@ export class AuthService {
     }, duration * 1000);
   }
 
-  private saveAuthData (token: string, expirationDate: Date, userId: string) {
+  private saveAuthData (token: string, expirationDate: Date, userId: string, perPage: number) {
     localStorage.setItem("token", token);
     localStorage.setItem("expiration", expirationDate.toISOString());
     localStorage.setItem("userId", userId);
+    localStorage.setItem("perPage", perPage.toString());
   }
 
   private clearAuthData() {
     localStorage.removeItem('token');
     localStorage.removeItem('expiration');
     localStorage.removeItem('userId');
+    localStorage.removeItem('perPage');
   }
 
   private getAuthData() {

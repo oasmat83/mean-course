@@ -23,9 +23,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   form: FormGroup | any;
   imagePreview: any;
   private authStatusSub: Subscription | any;
-  private authService: AuthService | any;
 
-  constructor(public postsService: PostsService, public route: ActivatedRoute) {}
+  constructor(public postsService: PostsService, public route: ActivatedRoute, private authService: AuthService) {}
 
   onImagePicked(event: Event) {
     const file = (event.target as HTMLInputElement).files![0];
@@ -53,6 +52,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    console.log(this.authService)
       this.authStatusSub = this.authService.getAuthStatusListener().subscribe(
         (authStatus: any) => {
           this.isLoading = false;

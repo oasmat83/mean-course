@@ -4,7 +4,9 @@ import { Subject } from 'rxjs';
 import { Post } from './post.model';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 
+const BACKEND_URL = environment.apiUrl + '/posts/'
 //injecting Service to Root (app.module.ts)
 @Injectable({providedIn: 'root'})
 export class PostsService {
@@ -19,7 +21,7 @@ export class PostsService {
       message: string,
       posts: any,
       maxPosts: number
-    }>('http://24.190.226.10/api/posts' + queryParams)
+    }>(BACKEND_URL + queryParams)
     .pipe(map((postData) => {
       return { posts: postData.posts.map((post:any) => {
         return {
@@ -53,18 +55,18 @@ export class PostsService {
     this.http.post<{
       message: string,
       post: Post
-    }>('http://24.190.226.10/api/posts', postData)
+    }>(BACKEND_URL, postData)
       .subscribe((responseData) => {
         this.router.navigate(["/"]);
       });
   }
 
   getPost(id: string) {
-    return this.http.get<{_id: string, title: string, content: string, imagePath: string, creator: string}>("http://24.190.226.10/api/posts/" + id);
+    return this.http.get<{_id: string, title: string, content: string, imagePath: string, creator: string}>(BACKEND_URL + id);
   }
 
   deletePost(postId: string) {
-    return this.http.delete("http://24.190.226.10/api/posts/" + postId);
+    return this.http.delete(BACKEND_URL + postId);
   }
 
   updatePost(id: string, title:string, content: string, image: File | string) {
@@ -88,7 +90,7 @@ export class PostsService {
     this.http.put<{
       message: string,
       postId: string
-    }>('http://24.190.226.10/api/posts/' + id, postData)
+    }>(BACKEND_URL + id, postData)
     .subscribe((response) => {
       this.router.navigate(["/"]);
     });

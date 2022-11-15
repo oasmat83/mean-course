@@ -11,6 +11,8 @@
 npm-debug.log
 yarn-error.log
 /backend/images
+/backend/angular
+nginx.conf
 .env
 
 # IDEs and editors

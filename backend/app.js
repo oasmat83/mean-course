@@ -5,10 +5,13 @@ const mongoose = require("mongoose");
 const app = express();
 const postRoutes = require("./routes/posts");
 const userRoutes = require("./routes/user");
-const { dbPath } = require("./config/config");
 
 mongoose
-  .connect(dbPath + "?w=majority")
+  .connect(
+    "mongodb+srv://oscar418:" +
+      process.env.MONGO_ATLAS_PW +
+      "@cluster0.r9jxi.mongodb.net/node-angular?w=majority"
+  )
   .then(() => {
     console.log("Connected to database");
   })
@@ -18,7 +21,8 @@ mongoose
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use("/images", express.static(path.join("backend/images")));
+app.use("/images", express.static(path.join(__dirname, "images")));
+app.use("/", express.static(path.join(__dirname, "angular")));
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -35,5 +39,8 @@ app.use((req, res, next) => {
 
 app.use("/api/posts", postRoutes);
 app.use("/api/user", userRoutes);
+app.use((req, res, next) => {
+  res.sendFile(path.join(__dirname, "angular", "index.html"));
+});
 
 module.exports = app;
