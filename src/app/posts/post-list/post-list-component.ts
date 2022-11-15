@@ -25,7 +25,7 @@ export class PostListComponent implements OnInit, OnDestroy {
   isLoading = false;
   posts: Post[] = [];
   totalPosts = 0;
-  postsPerPage = 2;
+  postsPerPage = parseInt(localStorage.getItem('perPage')!) || 2;
   pageSizeOptons = [1, 2, 5, 10];
   currentPage = 1;
   userId: string | undefined | null;
@@ -68,6 +68,11 @@ export class PostListComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.currentPage = event.pageIndex + 1;
     this.postsPerPage = event.pageSize;
+    localStorage.setItem("perPage", event.pageSize.toString());
+    const isAuth = this.authService.getIsAuth();
+    if (isAuth) {
+      this.authService.updatePage(event.pageSize);
+    };
     this.postsService.getPosts(this.postsPerPage, this.currentPage);
   }
 };
